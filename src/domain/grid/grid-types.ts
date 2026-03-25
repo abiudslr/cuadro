@@ -1,4 +1,5 @@
 export type Orientation = "vertical" | "horizontal";
+export type EditorMode = "setup" | "editor";
 
 export type AspectRatioKey =
     | "1:1"
@@ -10,6 +11,20 @@ export type AspectRatioKey =
     | "3:2";
 
 export type FitMode = "cover" | "contain";
+
+export type GridPresetKey =
+    | "story"
+    | "portrait"
+    | "square"
+    | "landscape"
+    | "banner";
+
+export type GridSetupDraft = {
+    orientation: Orientation;
+    presetKey: GridPresetKey;
+    rows: number;
+    cols: number;
+};
 
 export type GridConfig = {
     orientation: Orientation;

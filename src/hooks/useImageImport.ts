@@ -11,6 +11,7 @@ export function useImageImport() {
 
         const decoded = await Promise.all(list.map(decodeImageFile));
         addAssets(decoded);
+        return decoded;
     }
 
     return { importFiles };

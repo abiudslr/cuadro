@@ -1,13 +1,24 @@
 import { create } from "zustand";
-import type { GridCell, GridConfig } from "../domain/grid/grid-types";
+import { createGridConfigFromSetup } from "../domain/grid/grid-presets";
+import type {
+    EditorMode,
+    GridCell,
+    GridConfig,
+    GridSetupDraft,
+} from "../domain/grid/grid-types";
 import type { ImageAsset } from "../domain/image/image-types";
 
 type EditorState = {
+    mode: EditorMode;
+    setup: GridSetupDraft;
     config: GridConfig;
     cells: GridCell[];
     assets: ImageAsset[];
     selectedCellId: string | null;
 
+    setMode: (mode: EditorMode) => void;
+    updateSetup: (patch: Partial<GridSetupDraft>) => void;
+    commitSetup: () => void;
     setConfig: (patch: Partial<GridConfig>) => void;
     setAssets: (assets: ImageAsset[]) => void;
     addAssets: (assets: ImageAsset[]) => void;
@@ -42,18 +53,44 @@ function buildCells(rows: number, cols: number): GridCell[] {
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
-    config: {
+    mode: "setup",
+    setup: {
         orientation: "vertical",
-        aspectRatio: "3:4",
+        presetKey: "portrait",
         rows: 2,
         cols: 2,
-        gap: 8,
+    },
+    config: {
+        orientation: "vertical",
+        aspectRatio: "4:5",
+        rows: 2,
+        cols: 2,
+        gap: 12,
         padding: 16,
-        maxResolution: 2048,
+        maxResolution: 1350,
     },
     cells: buildCells(2, 2),
     assets: [],
     selectedCellId: null,
+
+    setMode: (mode) => set({ mode }),
+
+    updateSetup: (patch) =>
+        set((state) => ({
+            setup: { ...state.setup, ...patch },
+        })),
+
+    commitSetup: () =>
+        set((state) => {
+            const config = createGridConfigFromSetup(state.setup, state.config);
+
+            return {
+                mode: "editor",
+                config,
+                cells: buildCells(state.setup.rows, state.setup.cols),
+                selectedCellId: null,
+            };
+        }),
 
     setConfig: (patch) =>
         set((state) => ({
@@ -72,7 +109,16 @@ export const useEditorStore = create<EditorState>((set) => ({
     assignImageToCell: (cellId, imageId) =>
         set((state) => ({
             cells: state.cells.map((cell) =>
-                cell.id === cellId ? { ...cell, imageId } : cell
+                cell.id === cellId
+                    ? {
+                        ...cell,
+                        imageId,
+                        fitMode: "cover",
+                        zoom: 1,
+                        offsetX: 0,
+                        offsetY: 0,
+                    }
+                    : cell
             ),
         })),
 
@@ -85,6 +131,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
     rebuildCells: (rows, cols) =>
         set((state) => ({
+            setup: { ...state.setup, rows, cols },
             config: { ...state.config, rows, cols },
             cells: buildCells(rows, cols),
             selectedCellId: null,

@@ -1,29 +1,13 @@
-import { CellEditorPanel } from "../components/controls/CellEditorPanel";
-import { AppShell } from "../components/layout/AppShell";
-import { ConfigPanel } from "../components/controls/ConfigPanel";
-import { ExportPanel } from "../components/controls/ExportPanel";
-import { ImageList } from "../components/controls/ImageList";
-import { GridCanvas } from "../components/grid/GridCanvas";
-import { GridViewport } from "../components/grid/GridViewport";
+import { EditorScreen } from "../components/editor/EditorScreen";
+import { SetupScreen } from "../components/setup/SetupScreen";
+import { useEditorStore } from "../store/editor.store";
 
 export default function App() {
+    const mode = useEditorStore((state) => state.mode);
+
     return (
-        <AppShell
-            toolbar={
-                <div className="h-14 flex items-center px-4 font-semibold">
-                    Cuadro
-                </div>
-            }
-            sidebar={
-                <div>
-                    <ConfigPanel />
-                    <GridViewport />
-                    <CellEditorPanel />
-                    <ImageList />
-                    <ExportPanel />
-                </div>
-            }
-            content={<GridCanvas />}
-        />
+        <div className="min-h-full bg-[var(--app-bg)] text-[var(--text-primary)]">
+            {mode === "setup" ? <SetupScreen /> : <EditorScreen />}
+        </div>
     );
 }

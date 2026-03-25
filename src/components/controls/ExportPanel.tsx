@@ -19,9 +19,10 @@ export function ExportPanel() {
     }
 
     return (
-        <div className="p-4 border-t">
+        <div>
             <button
-                className="w-full bg-black text-white rounded px-4 py-2"
+                type="button"
+                className="rounded-full bg-[var(--accent-strong)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:translate-y-[-1px]"
                 onClick={handleExport}
             >
                 Exportar PNG
