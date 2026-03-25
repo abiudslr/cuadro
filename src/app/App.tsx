@@ -1,3 +1,4 @@
+import { CellEditorPanel } from "../components/controls/CellEditorPanel";
 import { AppShell } from "../components/layout/AppShell";
 import { ConfigPanel } from "../components/controls/ConfigPanel";
 import { ExportPanel } from "../components/controls/ExportPanel";
@@ -17,6 +18,7 @@ export default function App() {
                 <div>
                     <ConfigPanel />
                     <GridViewport />
+                    <CellEditorPanel />
                     <ImageList />
                     <ExportPanel />
                 </div>

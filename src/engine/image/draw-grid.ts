@@ -7,7 +7,8 @@ export async function drawGridToCanvas(
     canvas: HTMLCanvasElement,
     config: GridConfig,
     cells: GridCell[],
-    assets: ImageAsset[]
+    assets: ImageAsset[],
+    selectedCellId?: string | null
 ) {
     const layout = computeGridLayout(config, cells);
     const ctx = canvas.getContext("2d");
@@ -57,4 +58,24 @@ export async function drawGridToCanvas(
             offsetY: cell.offsetY,
         });
     }
+
+    if (!selectedCellId) {
+        return;
+    }
+
+    const selectedLayoutCell = layout.cells.find((cell) => cell.id === selectedCellId);
+    if (!selectedLayoutCell) {
+        return;
+    }
+
+    ctx.save();
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(
+        selectedLayoutCell.rect.x,
+        selectedLayoutCell.rect.y,
+        selectedLayoutCell.rect.width,
+        selectedLayoutCell.rect.height
+    );
+    ctx.restore();
 }
