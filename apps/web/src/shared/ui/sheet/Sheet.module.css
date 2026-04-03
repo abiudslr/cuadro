@@ -31,8 +31,14 @@
 }
 
 @media (min-width: 960px) {
-  .overlay,
   .sheet {
-    display: none;
+    right: 50%;
+    bottom: var(--space-5);
+    left: auto;
+    width: min(640px, calc(100vw - var(--space-10)));
+    max-height: min(80vh, 760px);
+    border-radius: var(--radius-xl);
+    border-bottom: 1px solid var(--color-border-subtle);
+    transform: translateX(50%);
   }
 }

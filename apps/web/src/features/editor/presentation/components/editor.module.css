@@ -144,6 +144,13 @@
   user-select: none;
   pointer-events: none;
   transform: translate(-50%, -50%);
+  opacity: 1;
+  transition: opacity 140ms ease;
+}
+
+.cellImageIncoming {
+  opacity: 0;
+  animation: cellImageFadeIn 140ms ease forwards;
 }
 
 .cellImageViewport {
@@ -284,8 +291,44 @@
 .cellLoading {
   position: absolute;
   inset: 0;
-  background: rgba(11, 13, 18, 0.18);
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 48%),
+    rgba(11, 13, 18, 0.22);
+  backdrop-filter: blur(3px);
   pointer-events: none;
+}
+
+.cellLoading::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.72);
+  border-right-color: rgba(255, 255, 255, 0.34);
+  animation: cellLoadingSpin 900ms linear infinite;
+}
+
+@keyframes cellLoadingSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cellImageFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .desktopPanel {

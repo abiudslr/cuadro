@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { Button } from '@/shared/ui/button/Button'
 import { Sheet } from '@/shared/ui/sheet/Sheet'
 import { useEditorStore } from '../../application/editorStore'

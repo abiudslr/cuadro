@@ -1,9 +1,7 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { loadPlacedImageFile } from '../../application/loadPlacedImageFile'
-import type { PlacedImage } from '../../domain/placedImage'
 
 type UseCellImagePickerOptions = {
-  onImageSelected: (image: PlacedImage) => void
+  onImageSelected: (cellId: string, file: File) => Promise<void>
 }
 
 export function useCellImagePicker({ onImageSelected }: UseCellImagePickerOptions) {
@@ -36,8 +34,7 @@ export function useCellImagePicker({ onImageSelected }: UseCellImagePickerOption
     setActiveCellId(cellId)
 
     try {
-      const image = await loadPlacedImageFile(file, cellId)
-      onImageSelected(image)
+      await onImageSelected(cellId, file)
     } finally {
       setActiveCellId(null)
     }

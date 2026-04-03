@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react'
 import type { CellViewport, ZoomAnchor } from '../../domain/cellImageTransform'
 
@@ -50,7 +50,60 @@ export function useCellImageGestures({
 }: UseCellImageGesturesInput) {
   const pointersRef = useRef(new Map<number, Point>())
   const pinchStateRef = useRef<{ center: Point; distance: number } | null>(null)
+  const rafIdRef = useRef<number | null>(null)
+  const queuedPanRef = useRef({ x: 0, y: 0 })
+  const queuedZoomRef = useRef<{ scaleDelta: number; anchor?: ZoomAnchor }>({
+    scaleDelta: 1,
+  })
   const [isDragging, setIsDragging] = useState(false)
+
+  const flushQueuedGestures = useCallback(() => {
+    if (rafIdRef.current !== null) {
+      window.cancelAnimationFrame(rafIdRef.current)
+      rafIdRef.current = null
+    }
+
+    const queuedPan = queuedPanRef.current
+    const queuedZoom = queuedZoomRef.current
+
+    queuedPanRef.current = { x: 0, y: 0 }
+    queuedZoomRef.current = { scaleDelta: 1 }
+
+    if (queuedPan.x !== 0 || queuedPan.y !== 0) {
+      onPan(cellId, cell, queuedPan.x, queuedPan.y)
+    }
+
+    if (queuedZoom.scaleDelta !== 1) {
+      onZoom(cellId, cell, queuedZoom.scaleDelta, queuedZoom.anchor)
+    }
+  }, [cell, cellId, onPan, onZoom])
+
+  const scheduleGestureFlush = useCallback(() => {
+    if (rafIdRef.current !== null) {
+      return
+    }
+
+    rafIdRef.current = window.requestAnimationFrame(() => {
+      rafIdRef.current = null
+      flushQueuedGestures()
+    })
+  }, [flushQueuedGestures])
+
+  const queuePan = useCallback((deltaX: number, deltaY: number) => {
+    queuedPanRef.current = {
+      x: queuedPanRef.current.x + deltaX,
+      y: queuedPanRef.current.y + deltaY,
+    }
+    scheduleGestureFlush()
+  }, [scheduleGestureFlush])
+
+  const queueZoom = useCallback((scaleDelta: number, anchor?: ZoomAnchor) => {
+    queuedZoomRef.current = {
+      scaleDelta: queuedZoomRef.current.scaleDelta * scaleDelta,
+      anchor,
+    }
+    scheduleGestureFlush()
+  }, [scheduleGestureFlush])
 
   const resetGestureState = () => {
     const pointers = [...pointersRef.current.values()]
@@ -65,6 +118,12 @@ export function useCellImageGestures({
       setIsDragging(false)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      flushQueuedGestures()
+    }
+  }, [flushQueuedGestures])
 
   const handlers = useMemo(
     () => ({
@@ -112,7 +171,7 @@ export function useCellImageGestures({
         pointersRef.current.set(event.pointerId, nextPoint)
 
         if (pointersRef.current.size === 1) {
-          onPan(cellId, cell, nextPoint.x - previousPoint.x, nextPoint.y - previousPoint.y)
+          queuePan(nextPoint.x - previousPoint.x, nextPoint.y - previousPoint.y)
           setIsDragging(true)
           return
         }
@@ -124,18 +183,11 @@ export function useCellImageGestures({
           const previousPinchState = pinchStateRef.current
 
           if (previousPinchState && previousPinchState.distance > 0 && nextDistance > 0) {
-            onPan(
-              cellId,
-              cell,
+            queuePan(
               nextCenter.x - previousPinchState.center.x,
               nextCenter.y - previousPinchState.center.y
             )
-            onZoom(
-              cellId,
-              cell,
-              nextDistance / previousPinchState.distance,
-              nextCenter
-            )
+            queueZoom(nextDistance / previousPinchState.distance, nextCenter)
           }
 
           pinchStateRef.current = {
@@ -152,6 +204,7 @@ export function useCellImageGestures({
 
         pointersRef.current.delete(event.pointerId)
         resetGestureState()
+        flushQueuedGestures()
       },
       onPointerCancel: (event: ReactPointerEvent<HTMLElement>) => {
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -160,6 +213,7 @@ export function useCellImageGestures({
 
         pointersRef.current.delete(event.pointerId)
         resetGestureState()
+        flushQueuedGestures()
       },
       onWheel: (event: ReactWheelEvent<HTMLElement>) => {
         if (!enabled) {
@@ -172,10 +226,10 @@ export function useCellImageGestures({
         const point = getRelativePoint(event)
         const scaleDelta = Math.min(Math.max(Math.exp(-event.deltaY * 0.0015), 0.85), 1.2)
 
-        onZoom(cellId, cell, scaleDelta, point)
+        queueZoom(scaleDelta, point)
       },
     }),
-    [cell, cellId, enabled, onPan, onSelect, onZoom]
+    [cellId, enabled, flushQueuedGestures, onSelect, queuePan, queueZoom]
   )
 
   return {

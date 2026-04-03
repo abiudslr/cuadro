@@ -2,7 +2,8 @@ import { getCanvasAspectRatio } from '../domain/grid'
 import { getCellImageMetrics } from '../domain/cellImageTransform'
 import { calculateGridLayout } from '../domain/gridLayoutEngine'
 import type { GridAspectRatio, GridOrientation } from '../domain/grid'
-import type { PlacedImagesByCellId } from '../domain/placedImage'
+import type { PlacedImage, PlacedImagesByCellId } from '../domain/placedImage'
+import { scheduleObjectUrlRevoke } from './objectUrl'
 
 export type ExportImageFormat = 'png' | 'jpeg'
 export type ExportResolution = 'standard' | 'high'
@@ -69,15 +70,7 @@ async function loadRenderableImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image()
 
-    image.onload = async () => {
-      try {
-        if (typeof image.decode === 'function') {
-          await image.decode()
-        }
-      } catch {
-        // Some browsers may reject decode for already-loaded blob URLs.
-      }
-
+    image.onload = () => {
       resolve(image)
     }
 
@@ -87,6 +80,99 @@ async function loadRenderableImage(src: string) {
 
     image.src = src
   })
+}
+
+type LoadedExportImage = {
+  drawable: CanvasImageSource
+  cleanup: () => void
+}
+
+type ExportImageSource =
+  | {
+      kind: 'working'
+      requiredLongestSide: number
+      url: string
+    }
+  | {
+      kind: 'original'
+      requiredLongestSide: number
+      file: File
+    }
+
+async function loadRenderableImageFromFile(file: File): Promise<LoadedExportImage> {
+  if (typeof createImageBitmap === 'function') {
+    const bitmap = await createImageBitmap(file)
+
+    return {
+      drawable: bitmap,
+      cleanup: () => bitmap.close(),
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(file)
+
+  try {
+    const image = await loadRenderableImage(objectUrl)
+
+    return {
+      drawable: image,
+      cleanup: () => scheduleObjectUrlRevoke(objectUrl),
+    }
+  } catch (error) {
+    scheduleObjectUrlRevoke(objectUrl)
+    throw error
+  }
+}
+
+async function loadExportImageSource(
+  source: ExportImageSource
+): Promise<LoadedExportImage> {
+  if (source.kind === 'original') {
+    return loadRenderableImageFromFile(source.file)
+  }
+
+  const image = await loadRenderableImage(source.url)
+
+  return {
+    drawable: image,
+    cleanup: () => {},
+  }
+}
+
+function getRequiredExportSourceLongestSide(
+  image: PlacedImage,
+  cell: { width: number; height: number }
+) {
+  const metrics = getCellImageMetrics(cell, image, image.transform)
+
+  return Math.max(
+    1,
+    Math.ceil(Math.max(metrics.renderedWidth, metrics.renderedHeight))
+  )
+}
+
+function selectExportImageSource(
+  image: PlacedImage,
+  cell: { width: number; height: number }
+): ExportImageSource {
+  const requiredLongestSide = Math.min(
+    getRequiredExportSourceLongestSide(image, cell),
+    image.original.originalLongestSide
+  )
+
+  if (image.working.workingLongestSide >= requiredLongestSide) {
+    return {
+      kind: 'working',
+      requiredLongestSide,
+      url: image.working.workingUrl,
+    }
+  }
+
+  return {
+    kind: 'original',
+    requiredLongestSide,
+    file: image.original.file,
+  }
 }
 
 function canvasToBlob(
@@ -178,17 +264,31 @@ export async function exportGridImage(
     context.fillStyle = snapshot.marginColor
     context.fillRect(cell.x, cell.y, cell.width, cell.height)
 
-    const renderableImage = await loadRenderableImage(image.objectUrl)
+    const exportSource = selectExportImageSource(image, cell)
+    const renderableImage = await loadExportImageSource(exportSource)
     const metrics = getCellImageMetrics(cell, image, image.transform)
     const drawX = cell.x + cell.width / 2 - metrics.renderedWidth / 2 + metrics.translateX
     const drawY = cell.y + cell.height / 2 - metrics.renderedHeight / 2 + metrics.translateY
 
-    context.save()
-    context.beginPath()
-    context.rect(cell.x, cell.y, cell.width, cell.height)
-    context.clip()
-    context.drawImage(renderableImage, drawX, drawY, metrics.renderedWidth, metrics.renderedHeight)
-    context.restore()
+    try {
+      context.save()
+      try {
+        context.beginPath()
+        context.rect(cell.x, cell.y, cell.width, cell.height)
+        context.clip()
+        context.drawImage(
+          renderableImage.drawable,
+          drawX,
+          drawY,
+          metrics.renderedWidth,
+          metrics.renderedHeight
+        )
+      } finally {
+        context.restore()
+      }
+    } finally {
+      renderableImage.cleanup()
+    }
   }
 
   return {

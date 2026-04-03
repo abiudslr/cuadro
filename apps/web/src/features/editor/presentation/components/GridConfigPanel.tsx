@@ -1,5 +1,5 @@
 import { getAspectRatioOptions, orientationOptions } from '@/shared/constants/grid'
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { NumberStepper } from '@/shared/ui/number-stepper/NumberStepper'
 import { Panel } from '@/shared/ui/panel/Panel'
 import { SegmentedControl } from '@/shared/ui/segmented-control/SegmentedControl'

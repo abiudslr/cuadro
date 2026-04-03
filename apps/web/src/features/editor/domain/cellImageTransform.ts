@@ -19,9 +19,17 @@ function round(value: number) {
   return Number(value.toFixed(6))
 }
 
-function getSafeImageDimensions(image: Pick<PlacedImage, 'width' | 'height'>) {
-  const width = Math.max(image.width ?? 0, 0)
-  const height = Math.max(image.height ?? 0, 0)
+function getSafeImageDimensions(
+  image: Pick<PlacedImage, 'working'> | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>
+) {
+  const width =
+    'working' in image
+      ? Math.max(image.working.workingWidth ?? 0, 0)
+      : Math.max(image.workingWidth ?? 0, 0)
+  const height =
+    'working' in image
+      ? Math.max(image.working.workingHeight ?? 0, 0)
+      : Math.max(image.workingHeight ?? 0, 0)
 
   return {
     width,
@@ -40,7 +48,9 @@ export function createInitialCellImageTransform(): CellImageTransform {
 
 export function getCoverScale(
   cell: CellViewport,
-  image: Pick<PlacedImage, 'width' | 'height'>
+  image:
+    | Pick<PlacedImage, 'working'>
+    | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>
 ) {
   const { width, height, isValid } = getSafeImageDimensions(image)
 
@@ -53,7 +63,9 @@ export function getCoverScale(
 
 export function getCellImageMetrics(
   cell: CellViewport,
-  image: Pick<PlacedImage, 'width' | 'height'>,
+  image:
+    | Pick<PlacedImage, 'working'>
+    | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>,
   transform: CellImageTransform
 ) {
   const { width, height, isValid } = getSafeImageDimensions(image)
@@ -84,7 +96,9 @@ export function getCellImageMetrics(
 
 export function clampCellImageTransform(
   cell: CellViewport,
-  image: Pick<PlacedImage, 'width' | 'height'>,
+  image:
+    | Pick<PlacedImage, 'working'>
+    | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>,
   transform: CellImageTransform
 ) {
   const metrics = getCellImageMetrics(cell, image, transform)
@@ -98,7 +112,9 @@ export function clampCellImageTransform(
 
 export function panCellImage(
   cell: CellViewport,
-  image: Pick<PlacedImage, 'width' | 'height'>,
+  image:
+    | Pick<PlacedImage, 'working'>
+    | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>,
   transform: CellImageTransform,
   deltaX: number,
   deltaY: number
@@ -114,7 +130,9 @@ export function panCellImage(
 
 export function zoomCellImage(
   cell: CellViewport,
-  image: Pick<PlacedImage, 'width' | 'height'>,
+  image:
+    | Pick<PlacedImage, 'working'>
+    | Pick<PlacedImage['working'], 'workingWidth' | 'workingHeight'>,
   transform: CellImageTransform,
   scaleDelta: number,
   anchor?: ZoomAnchor

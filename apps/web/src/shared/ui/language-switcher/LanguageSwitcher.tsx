@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { CheckIcon, GlobeIcon } from '@/shared/ui/icons/Icons'
 import styles from './LanguageSwitcher.module.css'
 

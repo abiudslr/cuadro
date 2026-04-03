@@ -1,11 +1,12 @@
 import { useEffect, useMemo } from 'react'
 import { calculateGridLayout } from '@/features/editor/domain/gridLayoutEngine'
 import { useElementSize } from '@/shared/hooks/useElementSize'
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { Panel } from '@/shared/ui/panel/Panel'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
 import { useCellImagePicker } from '../hooks/useCellImagePicker'
+import { useImagePreparationPipeline } from '../hooks/useImagePreparationPipeline'
 import { EditorCanvasCell } from './EditorCanvasCell'
 import styles from './editor.module.css'
 
@@ -18,16 +19,9 @@ export function EditorCanvas() {
     marginColor,
     marginWidth,
     orientation,
-    placeImage,
-    placedImages,
-    panImage,
-    resetImageTransform,
-    removeImage,
     selectCell,
-    selectedCellId,
     rows,
     syncPlacedImagesToLayout,
-    zoomImage,
   } = useEditorStore(
     useShallow((state) => ({
       orientation: state.orientation,
@@ -37,23 +31,12 @@ export function EditorCanvas() {
       emptyCellColor: state.emptyCellColor,
       marginWidth: state.marginWidth,
       marginColor: state.marginColor,
-      placedImages: state.placedImages,
-      placeImage: state.placeImage,
-      panImage: state.panImage,
-      resetImageTransform: state.resetImageTransform,
-      removeImage: state.removeImage,
-      selectedCellId: state.selectedCellId,
       selectCell: state.selectCell,
       syncPlacedImagesToLayout: state.syncPlacedImagesToLayout,
-      zoomImage: state.zoomImage,
     }))
   )
 
   const { elementRef, size } = useElementSize<HTMLDivElement>()
-  const { activeCellId, input, openFilePicker } = useCellImagePicker({
-    onImageSelected: placeImage,
-  })
-
   const layout = useMemo(
     () =>
       calculateGridLayout({
@@ -67,6 +50,12 @@ export function EditorCanvas() {
       }),
     [aspectRatio, columns, marginWidth, orientation, rows, size.height, size.width]
   )
+  const { handleZoomImage, prepareImageForCell } = useImagePreparationPipeline({
+    cells: layout.cells,
+  })
+  const { activeCellId, input, openFilePicker } = useCellImagePicker({
+    onImageSelected: prepareImageForCell,
+  })
 
   useEffect(() => {
     if (layout.cells.length > 0) {
@@ -104,16 +93,11 @@ export function EditorCanvas() {
                   key={cell.id}
                   cell={cell}
                   emptyCellColor={emptyCellColor}
-                  image={placedImages[cell.id]}
-                  isLoading={activeCellId === cell.id}
-                  isSelected={selectedCellId === cell.id}
                   marginColor={marginColor}
+                  pickerActiveCellId={activeCellId}
                   onOpenImagePicker={openFilePicker}
-                  onPanImage={panImage}
-                  onRemoveImage={removeImage}
-                  onResetImage={resetImageTransform}
                   onSelectCell={selectCell}
-                  onZoomImage={zoomImage}
+                  onZoomImage={handleZoomImage}
                 />
               )
             })}

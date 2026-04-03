@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { scheduleObjectUrlRevoke } from './objectUrl'
 import {
   getDefaultAspectRatioForOrientation,
   normalizeAspectRatioForOrientation,
@@ -15,7 +16,13 @@ import {
   type ZoomAnchor,
 } from '../domain/cellImageTransform'
 import type { GridCellLayout } from '../domain/gridLayoutEngine'
-import type { PlacedImage, PlacedImagesByCellId } from '../domain/placedImage'
+import type {
+  CellImageTransform,
+  ImagePreparationMetadata,
+  PlacedImage,
+  PlacedImagesByCellId,
+  WorkingImageMetadata,
+} from '../domain/placedImage'
 
 type EditorState = {
   orientation: GridOrientation
@@ -26,6 +33,7 @@ type EditorState = {
   marginColor: string
   emptyCellColor: string
   placedImages: PlacedImagesByCellId
+  preparingCellIds: Record<string, boolean>
   selectedCellId: string | null
   isConfigSheetOpen: boolean
   setOrientation: (orientation: GridOrientation) => void
@@ -36,6 +44,12 @@ type EditorState = {
   setMarginColor: (marginColor: string) => void
   setEmptyCellColor: (emptyCellColor: string) => void
   placeImage: (image: PlacedImage) => void
+  updateWorkingImage: (
+    cellId: string,
+    working: WorkingImageMetadata,
+    preparation: ImagePreparationMetadata
+  ) => void
+  setCellPreparing: (cellId: string, isPreparing: boolean) => void
   removeImage: (cellId: string) => void
   selectCell: (cellId: string | null) => void
   resetImageTransform: (cellId: string, cell: CellViewport) => void
@@ -56,8 +70,19 @@ const clamp = (value: number, min: number, max: number) =>
 
 function revokeImageUrl(image?: PlacedImage) {
   if (image) {
-    URL.revokeObjectURL(image.objectUrl)
+    scheduleObjectUrlRevoke(image.working.workingUrl)
   }
+}
+
+function isSameTransform(
+  current: CellImageTransform,
+  next: CellImageTransform
+) {
+  return (
+    current.scale === next.scale &&
+    current.offsetX === next.offsetX &&
+    current.offsetY === next.offsetY
+  )
 }
 
 function updatePlacedImage(
@@ -94,6 +119,7 @@ export const useEditorStore = create<EditorState>()(
       marginColor: '#0f1117',
       emptyCellColor: '#1a1d24',
       placedImages: {},
+      preparingCellIds: {},
       selectedCellId: null,
       isConfigSheetOpen: false,
       setOrientation: (orientation) =>
@@ -123,47 +149,130 @@ export const useEditorStore = create<EditorState>()(
                 transform: createInitialCellImageTransform(),
               },
             },
+            preparingCellIds: {
+              ...state.preparingCellIds,
+              [image.cellId]: false,
+            },
             selectedCellId: image.cellId,
+          }
+        }),
+      updateWorkingImage: (cellId, working, preparation) =>
+        set((state) => {
+          const image = state.placedImages[cellId]
+
+          if (!image) {
+            scheduleObjectUrlRevoke(working.workingUrl)
+
+            return state
+          }
+
+          if (image.working.workingUrl === working.workingUrl) {
+            return state
+          }
+
+          revokeImageUrl(image)
+
+          return {
+            placedImages: {
+              ...state.placedImages,
+              [cellId]: {
+                ...image,
+                working,
+                preparation,
+              },
+            },
+          }
+        }),
+      setCellPreparing: (cellId, isPreparing) =>
+        set((state) => {
+          if (state.preparingCellIds[cellId] === isPreparing) {
+            return state
+          }
+
+          return {
+            preparingCellIds: {
+              ...state.preparingCellIds,
+              [cellId]: isPreparing,
+            },
           }
         }),
       removeImage: (cellId) =>
         set((state) => {
           const nextPlacedImages = { ...state.placedImages }
+          const nextPreparingCellIds = { ...state.preparingCellIds }
           const image = nextPlacedImages[cellId]
 
           revokeImageUrl(image)
           delete nextPlacedImages[cellId]
+          delete nextPreparingCellIds[cellId]
 
           return {
             placedImages: nextPlacedImages,
+            preparingCellIds: nextPreparingCellIds,
             selectedCellId: state.selectedCellId === cellId ? null : state.selectedCellId,
           }
         }),
       selectCell: (cellId) => set({ selectedCellId: cellId }),
       resetImageTransform: (cellId, cell) =>
         set((state) => ({
-          placedImages: updatePlacedImage(state, cellId, (image) => ({
-            ...image,
-            transform: clampCellImageTransform(
+          placedImages: updatePlacedImage(state, cellId, (image) => {
+            const nextTransform = clampCellImageTransform(
               cell,
               image,
               createInitialCellImageTransform()
-            ),
-          })),
+            )
+
+            if (isSameTransform(image.transform, nextTransform)) {
+              return image
+            }
+
+            return {
+              ...image,
+              transform: nextTransform,
+            }
+          }),
         })),
       panImage: (cellId, cell, deltaX, deltaY) =>
         set((state) => ({
-          placedImages: updatePlacedImage(state, cellId, (image) => ({
-            ...image,
-            transform: panCellImage(cell, image, image.transform, deltaX, deltaY),
-          })),
+          placedImages: updatePlacedImage(state, cellId, (image) => {
+            const nextTransform = panCellImage(
+              cell,
+              image,
+              image.transform,
+              deltaX,
+              deltaY
+            )
+
+            if (isSameTransform(image.transform, nextTransform)) {
+              return image
+            }
+
+            return {
+              ...image,
+              transform: nextTransform,
+            }
+          }),
         })),
       zoomImage: (cellId, cell, scaleDelta, anchor) =>
         set((state) => ({
-          placedImages: updatePlacedImage(state, cellId, (image) => ({
-            ...image,
-            transform: zoomCellImage(cell, image, image.transform, scaleDelta, anchor),
-          })),
+          placedImages: updatePlacedImage(state, cellId, (image) => {
+            const nextTransform = zoomCellImage(
+              cell,
+              image,
+              image.transform,
+              scaleDelta,
+              anchor
+            )
+
+            if (isSameTransform(image.transform, nextTransform)) {
+              return image
+            }
+
+            return {
+              ...image,
+              transform: nextTransform,
+            }
+          }),
         })),
       syncPlacedImagesToLayout: (cells) =>
         set((state) => {
@@ -218,8 +327,18 @@ export const useEditorStore = create<EditorState>()(
         if (state) {
           // Local previews rely on session object URLs, so we always re-enter clean.
           state.placedImages = {}
+          state.preparingCellIds = {}
         }
       },
     }
   )
 )
+
+export const selectCellImage = (cellId: string) => (state: EditorState) =>
+  state.placedImages[cellId]
+
+export const selectCellIsPreparing = (cellId: string) => (state: EditorState) =>
+  Boolean(state.preparingCellIds[cellId])
+
+export const selectCellIsSelected = (cellId: string) => (state: EditorState) =>
+  state.selectedCellId === cellId

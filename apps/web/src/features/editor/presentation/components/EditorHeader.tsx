@@ -1,4 +1,4 @@
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { Button } from '@/shared/ui/button/Button'
 import { LanguageSwitcher } from '@/shared/ui/language-switcher/LanguageSwitcher'
 import { Panel } from '@/shared/ui/panel/Panel'

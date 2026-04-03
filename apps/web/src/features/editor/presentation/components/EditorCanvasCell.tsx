@@ -1,11 +1,10 @@
-import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
+import { memo, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import {
   getCellImageMetrics,
   type CellViewport,
 } from '@/features/editor/domain/cellImageTransform'
 import type { GridCellLayout } from '@/features/editor/domain/gridLayoutEngine'
-import type { PlacedImage } from '@/features/editor/domain/placedImage'
-import { useI18n } from '@/shared/i18n/I18nProvider'
+import { useI18n } from '@/shared/i18n/useI18n'
 import { IconButton } from '@/shared/ui/icon-button/IconButton'
 import {
   MinusIcon,
@@ -13,21 +12,22 @@ import {
   RefreshIcon,
   TrashIcon,
 } from '@/shared/ui/icons/Icons'
+import {
+  selectCellImage,
+  selectCellIsPreparing,
+  selectCellIsSelected,
+  useEditorStore,
+} from '../../application/editorStore'
 import { useCellImageGestures } from '../hooks/useCellImageGestures'
 import styles from './editor.module.css'
 
 type EditorCanvasCellProps = {
   cell: GridCellLayout
-  image?: PlacedImage
-  isSelected: boolean
   emptyCellColor: string
   marginColor: string
-  isLoading: boolean
+  pickerActiveCellId: string | null
   onOpenImagePicker: (cellId: string) => void
-  onRemoveImage: (cellId: string) => void
-  onResetImage: (cellId: string, cell: CellViewport) => void
   onSelectCell: (cellId: string | null) => void
-  onPanImage: (cellId: string, cell: CellViewport, deltaX: number, deltaY: number) => void
   onZoomImage: (
     cellId: string,
     cell: CellViewport,
@@ -49,21 +49,23 @@ function stopCellEvent(
   event.stopPropagation()
 }
 
-export function EditorCanvasCell({
+export const EditorCanvasCell = memo(function EditorCanvasCell({
   cell,
-  image,
-  isSelected,
   emptyCellColor,
   marginColor,
-  isLoading,
+  pickerActiveCellId,
   onOpenImagePicker,
-  onRemoveImage,
-  onResetImage,
   onSelectCell,
-  onPanImage,
   onZoomImage,
 }: EditorCanvasCellProps) {
   const { t } = useI18n()
+  const image = useEditorStore(selectCellImage(cell.id))
+  const isSelected = useEditorStore(selectCellIsSelected(cell.id))
+  const isPreparing = useEditorStore(selectCellIsPreparing(cell.id))
+  const isLoading = pickerActiveCellId === cell.id || isPreparing
+  const onPanImage = useEditorStore((state) => state.panImage)
+  const onRemoveImage = useEditorStore((state) => state.removeImage)
+  const onResetImage = useEditorStore((state) => state.resetImageTransform)
   const gestures = useCellImageGestures({
     cellId: cell.id,
     cell,
@@ -133,10 +135,10 @@ export function EditorCanvasCell({
               }}
             >
               <img
-                alt={image.name ?? ''}
+                alt={image.original.name ?? ''}
                 className={styles.cellImage}
                 draggable={false}
-                src={image.objectUrl}
+                src={image.working.workingUrl}
                 style={{
                   width: `${metrics.renderedWidth}px`,
                   height: `${metrics.renderedHeight}px`,
@@ -241,4 +243,4 @@ export function EditorCanvasCell({
       {isLoading ? <span className={styles.cellLoading} aria-hidden="true" /> : null}
     </div>
   )
-}
+})
