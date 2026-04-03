@@ -7,6 +7,7 @@ export const translations = {
       configure: 'Configure',
       close: 'Close',
       save: 'Save',
+      export: 'Export',
       language: 'Language',
       english: 'English',
       spanish: 'Spanish',
@@ -16,6 +17,22 @@ export const translations = {
     editor: {
       header: {
         title: 'Cuadro',
+      },
+      export: {
+        title: 'Export image',
+        subtitle: 'Download the current grid with its layout, colors, and image framing.',
+        action: 'Export',
+        close: 'Close export panel',
+        exporting: 'Exporting...',
+        formatLabel: 'Format',
+        sizeLabel: 'Resolution',
+        sizes: {
+          standard: 'Standard',
+          high: 'High',
+        },
+        errors: {
+          generic: 'The image could not be exported.',
+        },
       },
       canvas: {
         title: 'Preview',
@@ -78,6 +95,7 @@ export const translations = {
       configure: 'Configurar',
       close: 'Cerrar',
       save: 'Guardar',
+      export: 'Exportar',
       language: 'Idioma',
       english: 'English',
       spanish: 'Espa\u00f1ol',
@@ -87,6 +105,23 @@ export const translations = {
     editor: {
       header: {
         title: 'Cuadro',
+      },
+      export: {
+        title: 'Exportar imagen',
+        subtitle:
+          'Descarga la cuadr\u00edcula actual con su layout, colores y encuadre de im\u00e1genes.',
+        action: 'Exportar',
+        close: 'Cerrar panel de exportaci\u00f3n',
+        exporting: 'Exportando...',
+        formatLabel: 'Formato',
+        sizeLabel: 'Resoluci\u00f3n',
+        sizes: {
+          standard: 'Est\u00e1ndar',
+          high: 'Alta',
+        },
+        errors: {
+          generic: 'No se pudo exportar la imagen.',
+        },
       },
       canvas: {
         title: 'Vista previa',

@@ -395,6 +395,36 @@
   margin-bottom: var(--space-4);
 }
 
+.exportSheet {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.exportBody {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.exportMeta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.exportError {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 123, 132, 0.18);
+  background: rgba(255, 123, 132, 0.08);
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}
+
+.exportActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 @media (max-width: 639px) {
   .mobileDock {
     overflow-x: auto;
