@@ -1,5 +1,6 @@
-import type { CSSProperties } from 'react'
-import { getPreviewAspectRatio } from '@/shared/constants/grid'
+import { useMemo } from 'react'
+import { calculateGridLayout } from '@/features/editor/domain/gridLayoutEngine'
+import { useElementSize } from '@/shared/hooks/useElementSize'
 import { Panel } from '@/shared/ui/panel/Panel'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
@@ -27,28 +28,47 @@ export function EditorCanvas() {
       }))
     )
 
+  const { elementRef, size } = useElementSize<HTMLDivElement>()
+  const layout = useMemo(
+    () =>
+      calculateGridLayout({
+        orientation,
+        aspectRatio,
+        rows,
+        columns,
+        marginWidth,
+        containerWidth: size.width,
+        containerHeight: size.height,
+      }),
+    [aspectRatio, columns, marginWidth, orientation, rows, size.height, size.width]
+  )
+
   return (
     <Panel className={styles.canvasPanel} elevated>
       <div className={styles.previewFrame}>
-        <div
-          className={styles.previewCanvas}
-          style={
-            {
-              '--preview-aspect-ratio': getPreviewAspectRatio(
-                aspectRatio,
-                orientation
-              ),
-              '--preview-gap': `${marginWidth}px`,
-              '--preview-margin-color': marginColor,
-              '--preview-cell-color': emptyCellColor,
-              gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-            } as CSSProperties
-          }
-        >
-          {Array.from({ length: rows * columns }, (_, index) => (
-            <div key={index} className={styles.previewCell} />
-          ))}
+        <div ref={elementRef} className={styles.previewViewport}>
+          <div
+            className={styles.previewCanvas}
+            style={{
+              width: `${layout.canvasWidth}px`,
+              height: `${layout.canvasHeight}px`,
+              background: marginColor,
+            }}
+          >
+            {layout.cells.map((cell) => (
+              <div
+                key={cell.id}
+                className={styles.previewCell}
+                style={{
+                  left: `${cell.x}px`,
+                  top: `${cell.y}px`,
+                  width: `${cell.width}px`,
+                  height: `${cell.height}px`,
+                  background: emptyCellColor,
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </Panel>

@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-
-export type GridOrientation = 'vertical' | 'horizontal'
-export type GridAspectRatio = '1:1' | '3:4' | '4:5' | '9:16' | '16:9'
+import type { GridAspectRatio, GridOrientation } from '../domain/grid'
 
 type EditorState = {
   orientation: GridOrientation
