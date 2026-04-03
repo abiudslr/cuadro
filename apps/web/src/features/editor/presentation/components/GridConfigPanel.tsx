@@ -1,4 +1,4 @@
-import { aspectRatioOptions, orientationOptions } from '@/shared/constants/grid'
+import { getAspectRatioOptions, orientationOptions } from '@/shared/constants/grid'
 import { useI18n } from '@/shared/i18n/I18nProvider'
 import { NumberStepper } from '@/shared/ui/number-stepper/NumberStepper'
 import { Panel } from '@/shared/ui/panel/Panel'
@@ -51,6 +51,8 @@ export function GridConfigPanel({
     }))
   )
 
+  const aspectRatioOptions = getAspectRatioOptions(orientation)
+
   return (
     <Panel className={styles.configPanel} elevated={elevated}>
       {showHeader ? (
@@ -87,7 +89,7 @@ export function GridConfigPanel({
             {t('editor.config.fields.aspectRatio')}
           </span>
           <SegmentedControl
-            columns={3}
+            columns={Math.min(4, aspectRatioOptions.length)}
             label={t('editor.config.fields.aspectRatio')}
             options={aspectRatioOptions.map((option) => ({
               value: option.value,

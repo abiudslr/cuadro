@@ -1,6 +1,12 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import {
+  getDefaultAspectRatioForOrientation,
+  normalizeAspectRatioForOrientation,
+  type GridAspectRatio,
+  type GridOrientation,
+} from '../domain/grid'
+import {
   clampCellImageTransform,
   createInitialCellImageTransform,
   panCellImage,
@@ -9,7 +15,6 @@ import {
   type ZoomAnchor,
 } from '../domain/cellImageTransform'
 import type { GridCellLayout } from '../domain/gridLayoutEngine'
-import type { GridAspectRatio, GridOrientation } from '../domain/grid'
 import type { PlacedImage, PlacedImagesByCellId } from '../domain/placedImage'
 
 type EditorState = {
@@ -82,7 +87,7 @@ export const useEditorStore = create<EditorState>()(
   persist(
     (set) => ({
       orientation: 'vertical',
-      aspectRatio: '4:5',
+      aspectRatio: getDefaultAspectRatioForOrientation('vertical'),
       rows: 3,
       columns: 2,
       marginWidth: 12,
@@ -91,7 +96,14 @@ export const useEditorStore = create<EditorState>()(
       placedImages: {},
       selectedCellId: null,
       isConfigSheetOpen: false,
-      setOrientation: (orientation) => set({ orientation }),
+      setOrientation: (orientation) =>
+        set((state) => ({
+          orientation,
+          aspectRatio: normalizeAspectRatioForOrientation(
+            state.aspectRatio,
+            orientation
+          ),
+        })),
       setAspectRatio: (aspectRatio) => set({ aspectRatio }),
       setRows: (rows) => set({ rows: clamp(rows, 1, 5) }),
       setColumns: (columns) => set({ columns: clamp(columns, 1, 5) }),
