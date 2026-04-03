@@ -1,43 +1,56 @@
-import { useEffect, useRef } from 'react'
+import type { CSSProperties } from 'react'
+import { getPreviewAspectRatio } from '@/shared/constants/grid'
+import { Panel } from '@/shared/ui/panel/Panel'
+import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
+import styles from './editor.module.css'
 
 export function EditorCanvas() {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null)
-    const { rows, columns } = useEditorStore()
-
-    useEffect(() => {
-        const canvas = canvasRef.current
-        if (!canvas) return
-
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return
-
-        const width = canvas.width = canvas.clientWidth
-        const height = canvas.height = canvas.clientHeight
-
-        ctx.clearRect(0, 0, width, height)
-
-        const cellWidth = width / columns
-        const cellHeight = height / rows
-
-        ctx.strokeStyle = '#444'
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                ctx.strokeRect(
-                    c * cellWidth,
-                    r * cellHeight,
-                    cellWidth,
-                    cellHeight
-                )
-            }
-        }
-    }, [rows, columns])
-
-    return (
-        <canvas
-            ref={canvasRef}
-            style={{ flex: 1, width: '100%', height: '100%' }}
-        />
+  const {
+    aspectRatio,
+    columns,
+    emptyCellColor,
+    marginColor,
+    marginWidth,
+    orientation,
+    rows,
+  } =
+    useEditorStore(
+      useShallow((state) => ({
+        orientation: state.orientation,
+        aspectRatio: state.aspectRatio,
+        rows: state.rows,
+        columns: state.columns,
+        emptyCellColor: state.emptyCellColor,
+        marginWidth: state.marginWidth,
+        marginColor: state.marginColor,
+      }))
     )
+
+  return (
+    <Panel className={styles.canvasPanel} elevated>
+      <div className={styles.previewFrame}>
+        <div
+          className={styles.previewCanvas}
+          style={
+            {
+              '--preview-aspect-ratio': getPreviewAspectRatio(
+                aspectRatio,
+                orientation
+              ),
+              '--preview-gap': `${marginWidth}px`,
+              '--preview-margin-color': marginColor,
+              '--preview-cell-color': emptyCellColor,
+              gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            } as CSSProperties
+          }
+        >
+          {Array.from({ length: rows * columns }, (_, index) => (
+            <div key={index} className={styles.previewCell} />
+          ))}
+        </div>
+      </div>
+    </Panel>
+  )
 }

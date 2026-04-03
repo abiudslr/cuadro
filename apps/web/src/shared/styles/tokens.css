@@ -1,0 +1,55 @@
+:root {
+  --color-background: #090a0c;
+  --color-surface: rgba(18, 20, 24, 0.88);
+  --color-surface-elevated: rgba(28, 30, 36, 0.96);
+  --color-surface-strong: #24262d;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+  --color-text-primary: #f4f5f7;
+  --color-text-secondary: #9b9fad;
+  --color-text-muted: #6e7483;
+  --color-accent: #c5d0ff;
+  --color-accent-strong: #91a6ff;
+  --color-danger: #ff7b84;
+  --color-overlay: rgba(4, 5, 8, 0.72);
+  --color-shadow: rgba(0, 0, 0, 0.45);
+
+  --shadow-soft: 0 12px 36px rgba(0, 0, 0, 0.22);
+  --shadow-elevated: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --shadow-focus: 0 0 0 1px rgba(145, 166, 255, 0.48);
+
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  --font-family-base:
+    'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Inter', system-ui, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  --line-height-tight: 1.1;
+  --line-height-base: 1.4;
+  --line-height-relaxed: 1.6;
+
+  --container-width: 1440px;
+  --header-height: 72px;
+  --mobile-dock-height: 88px;
+  --panel-width: 360px;
+}

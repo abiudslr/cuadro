@@ -1,0 +1,251 @@
+.page {
+  min-height: 100vh;
+  padding: var(--space-4);
+  padding-bottom: calc(var(--mobile-dock-height) + var(--space-4));
+}
+
+.shell {
+  display: grid;
+  gap: var(--space-4);
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+.header {
+  position: relative;
+  z-index: 12;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: var(--space-3) var(--space-4);
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.workspace {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mainColumn {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.previewShell {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.canvasPanel {
+  display: grid;
+  padding: var(--space-3);
+}
+
+.previewFrame {
+  display: grid;
+  place-items: center;
+  min-height: 430px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.previewCanvas {
+  display: grid;
+  gap: var(--preview-gap, 12px);
+  width: min(100%, 560px);
+  aspect-ratio: var(--preview-aspect-ratio, 4 / 5);
+  padding: var(--preview-gap, 12px);
+  border-radius: 0px;
+  background: var(--preview-margin-color, #0f1117);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.previewCell {
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0;
+  background: var(--preview-cell-color, #1a1d24);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.desktopPanel {
+  display: none;
+}
+
+.configPanel {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-4);
+}
+
+.configSection {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.configSectionHeader {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.helperText {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.fieldLabel {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.colorInput {
+  inline-size: 100%;
+  block-size: 50px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.mobileDock {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  left: var(--space-4);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-pill);
+}
+
+.quickMetrics {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.metricChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.metricValue {
+  color: var(--color-text-primary);
+}
+
+.metricIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 639px) {
+  .mobileDock {
+    overflow-x: auto;
+  }
+
+  .quickMetrics {
+    min-width: max-content;
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: var(--space-5);
+    padding-bottom: calc(var(--mobile-dock-height) + var(--space-5));
+  }
+
+  .shell {
+    gap: var(--space-5);
+  }
+
+  .header,
+  .configPanel {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .canvasPanel {
+    padding: var(--space-4);
+  }
+
+  .previewFrame {
+    min-height: 560px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+}
+
+@media (min-width: 960px) {
+  .page {
+    padding-bottom: var(--space-5);
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, var(--panel-width));
+    align-items: start;
+  }
+
+  .desktopPanel {
+    display: block;
+    position: sticky;
+    top: var(--space-4);
+  }
+
+  .mobileDock {
+    display: none;
+  }
+}
