@@ -55,7 +55,7 @@ export function calculateGridLayout(input: GridLayoutInput): GridLayoutResult {
   const rows = clamp(Math.floor(input.rows), 1, 5)
   const columns = clamp(Math.floor(input.columns), 1, 5)
   const requestedMargin = Math.max(input.marginWidth, 0)
-  const canvasAspectRatio = getCanvasAspectRatio(input.aspectRatio, input.orientation)
+  const canvasAspectRatio = getCanvasAspectRatio(input.aspectRatio)
   const fittedCanvas = fitCanvas(
     Math.max(input.containerWidth, 0),
     Math.max(input.containerHeight, 0),

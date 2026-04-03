@@ -115,7 +115,7 @@ export function getGridExportSize(
   resolution: ExportResolution = 'standard'
 ): GridExportSize {
   const maxEdge = EXPORT_RESOLUTION_MAX_EDGE[resolution]
-  const aspectRatio = getCanvasAspectRatio(snapshot.aspectRatio, snapshot.orientation)
+  const aspectRatio = getCanvasAspectRatio(snapshot.aspectRatio)
 
   if (aspectRatio >= 1) {
     return {

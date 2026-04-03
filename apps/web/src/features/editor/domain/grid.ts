@@ -45,13 +45,8 @@ export function normalizeAspectRatioForOrientation(
     : getDefaultAspectRatioForOrientation(orientation)
 }
 
-export function getCanvasAspectRatio(
-  aspectRatio: GridAspectRatio,
-  orientation: GridOrientation
-) {
+export function getCanvasAspectRatio(aspectRatio: GridAspectRatio) {
   const [baseWidth, baseHeight] = aspectRatioDimensions[aspectRatio]
 
-  return orientation === 'vertical'
-    ? baseWidth / baseHeight
-    : baseHeight / baseWidth
+  return baseWidth / baseHeight
 }
