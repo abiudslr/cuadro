@@ -76,3 +76,35 @@ export function CheckIcon(props: IconProps) {
     </IconBase>
   )
 }
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </IconBase>
+  )
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M4 7h16" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+      <path d="M6 7l1 12h10l1-12" />
+      <path d="M9 7V5h6v2" />
+    </IconBase>
+  )
+}
+
+export function RefreshIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M20 11a8 8 0 0 0-14.9-3" />
+      <path d="M4 4v5h5" />
+      <path d="M4 13a8 8 0 0 0 14.9 3" />
+      <path d="M20 20v-5h-5" />
+    </IconBase>
+  )
+}

@@ -80,16 +80,147 @@
   position: relative;
   max-width: 100%;
   max-height: 100%;
-  border-radius: 0px;
+  border-radius: 0;
   background: #0f1117;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .previewCell {
   position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border-radius: 0;
   background: #1a1d24;
   border: 1px solid rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.previewCell:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.previewCell:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 0 3px rgba(237, 240, 255, 0.12);
+}
+
+.previewCellSelected {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 0 2px rgba(237, 240, 255, 0.08);
+}
+
+.previewCell:active {
+  transform: scale(0.995);
+}
+
+.cellImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.cellOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.12));
+  pointer-events: none;
+}
+
+.emptyCellIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.62);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+  pointer-events: none;
+}
+
+.previewCell:hover .emptyCellIndicator,
+.previewCell:focus-visible .emptyCellIndicator {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.03);
+}
+
+.cellActions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cellAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(11, 13, 18, 0.72);
+  color: rgba(255, 255, 255, 0.82);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.previewCell:hover .cellAction,
+.previewCell:focus-visible .cellAction,
+.previewCellSelected .cellAction,
+.cellAction:focus-visible {
+  opacity: 1;
+}
+
+.cellAction:hover,
+.cellAction:focus-visible {
+  background: rgba(20, 23, 30, 0.92);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.cellAction:focus-visible {
+  outline: none;
+}
+
+.cellAction:active {
+  transform: scale(0.96);
+}
+
+.cellLoading {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 13, 18, 0.18);
+  pointer-events: none;
 }
 
 .desktopPanel {
@@ -233,6 +364,11 @@
     border-radius: var(--radius-lg);
     padding: var(--space-6);
   }
+
+  .emptyCellIndicator {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 @media (min-width: 960px) {
@@ -253,5 +389,11 @@
 
   .mobileDock {
     display: none;
+  }
+}
+
+@media (hover: none) {
+  .cellAction {
+    opacity: 1;
   }
 }

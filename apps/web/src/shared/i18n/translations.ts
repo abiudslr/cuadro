@@ -19,6 +19,10 @@ export const translations = {
       },
       canvas: {
         title: 'Preview',
+        addImage: 'Add image to cell',
+        selectImage: 'Select cell image',
+        replaceImage: 'Replace cell image',
+        removeImage: 'Remove cell image',
       },
       mobileDock: {
         orientation: 'Orientation',
@@ -73,9 +77,9 @@ export const translations = {
       save: 'Guardar',
       language: 'Idioma',
       english: 'English',
-      spanish: 'Español',
-      openSettings: 'Abrir configuración',
-      closeSettings: 'Cerrar configuración',
+      spanish: 'Espa\u00f1ol',
+      openSettings: 'Abrir configuraci\u00f3n',
+      closeSettings: 'Cerrar configuraci\u00f3n',
     },
     editor: {
       header: {
@@ -83,27 +87,31 @@ export const translations = {
       },
       canvas: {
         title: 'Vista previa',
+        addImage: 'Agregar imagen a la celda',
+        selectImage: 'Seleccionar imagen de la celda',
+        replaceImage: 'Reemplazar imagen de la celda',
+        removeImage: 'Eliminar imagen de la celda',
       },
       mobileDock: {
-        orientation: 'Orientación',
+        orientation: 'Orientaci\u00f3n',
         aspectRatio: 'Ratio',
         cells: 'Celdas',
       },
       config: {
-        title: 'Configuración de cuadrícula',
+        title: 'Configuraci\u00f3n de cuadr\u00edcula',
         sections: {
           layout: 'Layout',
           structure: 'Estructura',
           appearance: 'Apariencia',
         },
         fields: {
-          orientation: 'Orientación',
-          aspectRatio: 'Relación de aspecto',
+          orientation: 'Orientaci\u00f3n',
+          aspectRatio: 'Relaci\u00f3n de aspecto',
           rows: 'Filas',
           columns: 'Columnas',
           marginWidth: 'Ancho de margen',
           marginColor: 'Color del margen',
-          emptyCellColor: 'Color del cuadro vacío',
+          emptyCellColor: 'Color del cuadro vac\u00edo',
         },
         orientation: {
           vertical: 'Vertical',
