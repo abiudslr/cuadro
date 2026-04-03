@@ -57,13 +57,26 @@ function getFileExtension(format: ExportImageFormat) {
   return format === 'png' ? 'png' : 'jpg'
 }
 
+function padTimestampPart(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+function getLocalTimestampForFileName(date: Date) {
+  return [
+    date.getFullYear(),
+    padTimestampPart(date.getMonth() + 1),
+    padTimestampPart(date.getDate()),
+    padTimestampPart(date.getHours()),
+    padTimestampPart(date.getMinutes()),
+    padTimestampPart(date.getSeconds()),
+  ].join('')
+}
+
 function buildDefaultFileName(
-  snapshot: EditorExportSnapshot,
+  _snapshot: EditorExportSnapshot,
   format: ExportImageFormat
 ) {
-  return `cuadro-${snapshot.aspectRatio.replace(':', 'x')}-${snapshot.rows}x${snapshot.columns}.${getFileExtension(
-    format
-  )}`
+  return `cuadro_${getLocalTimestampForFileName(new Date())}.${getFileExtension(format)}`
 }
 
 async function loadRenderableImage(src: string) {

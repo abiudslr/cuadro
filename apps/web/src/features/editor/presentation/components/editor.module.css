@@ -92,7 +92,7 @@
   padding: 0;
   border-radius: 0;
   background: #1a1d24;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--cell-outline-color, rgba(255, 255, 255, 0.03));
   overflow: hidden;
   cursor: pointer;
   transition:
@@ -104,7 +104,7 @@
 }
 
 .previewCell:hover {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--cell-outline-hover-color, rgba(255, 255, 255, 0.08));
 }
 
 .previewCellEditable {
@@ -115,15 +115,15 @@
 .previewCell:focus-visible {
   outline: none;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 0 0 3px rgba(237, 240, 255, 0.12);
+    inset 0 0 0 1px var(--cell-focus-inner-color, rgba(255, 255, 255, 0.08)),
+    0 0 0 3px var(--cell-focus-ring-color, rgba(237, 240, 255, 0.12));
 }
 
 .previewCellSelected {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--cell-outline-selected-color, rgba(255, 255, 255, 0.18));
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px var(--cell-outline-selected-inner-color, rgba(255, 255, 255, 0.16)),
+    0 0 0 1px var(--cell-outline-selected-outer-color, rgba(255, 255, 255, 0.08)),
     0 18px 32px rgba(0, 0, 0, 0.18);
 }
 
@@ -182,9 +182,9 @@
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.62);
+  background: var(--empty-indicator-background, rgba(255, 255, 255, 0.045));
+  border: 1px solid var(--empty-indicator-border-color, rgba(255, 255, 255, 0.06));
+  color: var(--empty-indicator-icon-color, rgba(255, 255, 255, 0.62));
   transition:
     background-color 160ms ease,
     color 160ms ease,
@@ -195,9 +195,9 @@
 
 .previewCell:hover .emptyCellIndicator,
 .previewCell:focus-visible .emptyCellIndicator {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--empty-indicator-background-hover, rgba(255, 255, 255, 0.07));
+  border-color: var(--empty-indicator-border-hover, rgba(255, 255, 255, 0.1));
+  color: var(--empty-indicator-icon-hover, rgba(255, 255, 255, 0.8));
   transform: scale(1.03);
 }
 

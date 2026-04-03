@@ -1,9 +1,10 @@
-import { memo, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
+import { memo, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import {
   getCellImageMetrics,
   type CellViewport,
 } from '@/features/editor/domain/cellImageTransform'
 import type { GridCellLayout } from '@/features/editor/domain/gridLayoutEngine'
+import { getContrastTone, rgba } from '@/shared/lib/colorContrast'
 import { useI18n } from '@/shared/i18n/useI18n'
 import { IconButton } from '@/shared/ui/icon-button/IconButton'
 import {
@@ -77,6 +78,23 @@ export const EditorCanvasCell = memo(function EditorCanvasCell({
 
   const metrics = image ? getCellImageMetrics(cell, image, image.transform) : null
   const cellLabel = image ? t('editor.canvas.selectImage') : t('editor.canvas.addImage')
+  const cellSurfaceColor = image ? marginColor : emptyCellColor
+  const contrastTone = getContrastTone(cellSurfaceColor)
+  const cellChromeStyle = {
+    '--cell-outline-color': rgba(contrastTone, 0.1),
+    '--cell-outline-hover-color': rgba(contrastTone, 0.18),
+    '--cell-outline-selected-color': rgba(contrastTone, 0.28),
+    '--cell-outline-selected-inner-color': rgba(contrastTone, 0.22),
+    '--cell-outline-selected-outer-color': rgba(contrastTone, 0.12),
+    '--cell-focus-inner-color': rgba(contrastTone, 0.18),
+    '--cell-focus-ring-color': rgba(contrastTone, 0.18),
+    '--empty-indicator-background': rgba(contrastTone, 0.1),
+    '--empty-indicator-border-color': rgba(contrastTone, 0.18),
+    '--empty-indicator-icon-color': rgba(contrastTone, 0.82),
+    '--empty-indicator-background-hover': rgba(contrastTone, 0.16),
+    '--empty-indicator-border-hover': rgba(contrastTone, 0.28),
+    '--empty-indicator-icon-hover': rgba(contrastTone, 0.96),
+  } as CSSProperties
 
   return (
     <div
@@ -97,7 +115,8 @@ export const EditorCanvasCell = memo(function EditorCanvasCell({
         top: `${cell.y}px`,
         width: `${cell.width}px`,
         height: `${cell.height}px`,
-        background: image ? marginColor : emptyCellColor,
+        background: cellSurfaceColor,
+        ...cellChromeStyle,
       }}
       onClick={() => {
         if (image) {

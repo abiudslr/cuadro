@@ -220,7 +220,9 @@ export function useCellImageGestures({
           return
         }
 
-        event.preventDefault()
+        if (event.cancelable) {
+          event.preventDefault()
+        }
         onSelect(cellId)
 
         const point = getRelativePoint(event)
