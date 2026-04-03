@@ -99,11 +99,17 @@
     border-color 160ms ease,
     box-shadow 160ms ease,
     transform 160ms ease,
-    opacity 160ms ease;
+    opacity 160ms ease,
+    background-color 160ms ease;
 }
 
 .previewCell:hover {
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+.previewCellEditable {
+  cursor: grab;
+  touch-action: none;
 }
 
 .previewCell:focus-visible {
@@ -114,10 +120,15 @@
 }
 
 .previewCellSelected {
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-    0 0 0 2px rgba(237, 240, 255, 0.08);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 18px 32px rgba(0, 0, 0, 0.18);
+}
+
+.previewCellDragging {
+  cursor: grabbing;
 }
 
 .previewCell:active {
@@ -125,19 +136,36 @@
 }
 
 .cellImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: none;
+  max-height: none;
   user-select: none;
   pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.cellImageViewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.cellImageTransform {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
 }
 
 .cellOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.12));
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.16)),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.02), transparent 70%);
   pointer-events: none;
+  transition: opacity 160ms ease;
 }
 
 .emptyCellIndicator {
@@ -173,6 +201,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  z-index: 2;
 }
 
 .cellAction {
@@ -214,6 +243,42 @@
 
 .cellAction:active {
   transform: scale(0.96);
+}
+
+.cellTransformControls {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.cellTransformControlsVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.cellTransformButton {
+  background: rgba(11, 13, 18, 0.76);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.cellTransformButton:hover,
+.cellTransformButton:focus-visible {
+  background: rgba(18, 21, 29, 0.94);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .cellLoading {
@@ -395,5 +460,11 @@
 @media (hover: none) {
   .cellAction {
     opacity: 1;
+  }
+
+  .cellTransformControls {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 }

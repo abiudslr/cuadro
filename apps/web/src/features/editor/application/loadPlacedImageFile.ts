@@ -1,3 +1,4 @@
+import { createInitialCellImageTransform } from '../domain/cellImageTransform'
 import type { PlacedImage } from '../domain/placedImage'
 
 function createImageId() {
@@ -41,11 +42,7 @@ export async function loadPlacedImageFile(file: File, cellId: string): Promise<P
       width,
       height,
       mimeType: file.type || undefined,
-      transform: {
-        offsetX: 0,
-        offsetY: 0,
-        scale: 1,
-      },
+      transform: createInitialCellImageTransform(),
     }
   } catch (error) {
     URL.revokeObjectURL(objectUrl)

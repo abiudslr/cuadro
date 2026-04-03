@@ -1,20 +1,16 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { calculateGridLayout } from '@/features/editor/domain/gridLayoutEngine'
 import { useElementSize } from '@/shared/hooks/useElementSize'
 import { useI18n } from '@/shared/i18n/I18nProvider'
-import { PlusIcon, RefreshIcon, TrashIcon } from '@/shared/ui/icons/Icons'
 import { Panel } from '@/shared/ui/panel/Panel'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
 import { useCellImagePicker } from '../hooks/useCellImagePicker'
+import { EditorCanvasCell } from './EditorCanvasCell'
 import styles from './editor.module.css'
 
-function isActionKey(key: string) {
-  return key === 'Enter' || key === ' '
-}
-
 export function EditorCanvas() {
-  const { t } = useI18n()
+  useI18n()
   const {
     aspectRatio,
     columns,
@@ -24,10 +20,14 @@ export function EditorCanvas() {
     orientation,
     placeImage,
     placedImages,
+    panImage,
+    resetImageTransform,
     removeImage,
     selectCell,
     selectedCellId,
     rows,
+    syncPlacedImagesToLayout,
+    zoomImage,
   } = useEditorStore(
     useShallow((state) => ({
       orientation: state.orientation,
@@ -39,9 +39,13 @@ export function EditorCanvas() {
       marginColor: state.marginColor,
       placedImages: state.placedImages,
       placeImage: state.placeImage,
+      panImage: state.panImage,
+      resetImageTransform: state.resetImageTransform,
       removeImage: state.removeImage,
       selectedCellId: state.selectedCellId,
       selectCell: state.selectCell,
+      syncPlacedImagesToLayout: state.syncPlacedImagesToLayout,
+      zoomImage: state.zoomImage,
     }))
   )
 
@@ -64,9 +68,22 @@ export function EditorCanvas() {
     [aspectRatio, columns, marginWidth, orientation, rows, size.height, size.width]
   )
 
+  useEffect(() => {
+    if (layout.cells.length > 0) {
+      syncPlacedImagesToLayout(layout.cells)
+    }
+  }, [layout.cells, syncPlacedImagesToLayout])
+
   return (
     <Panel className={styles.canvasPanel} elevated>
-      <div className={styles.previewFrame}>
+      <div
+        className={styles.previewFrame}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            selectCell(null)
+          }
+        }}
+      >
         <div ref={elementRef} className={styles.previewViewport}>
           <div
             className={styles.previewCanvas}
@@ -75,103 +92,29 @@ export function EditorCanvas() {
               height: `${layout.canvasHeight}px`,
               background: marginColor,
             }}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                selectCell(null)
+              }
+            }}
           >
             {layout.cells.map((cell) => {
-              const image = placedImages[cell.id]
-              const isSelected = selectedCellId === cell.id
-              const cellLabel = image
-                ? t('editor.canvas.selectImage')
-                : t('editor.canvas.addImage')
-
               return (
-                <div
+                <EditorCanvasCell
                   key={cell.id}
-                  className={[styles.previewCell, isSelected ? styles.previewCellSelected : '']
-                    .filter(Boolean)
-                    .join(' ')}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={cellLabel}
-                  style={{
-                    left: `${cell.x}px`,
-                    top: `${cell.y}px`,
-                    width: `${cell.width}px`,
-                    height: `${cell.height}px`,
-                    background: image ? marginColor : emptyCellColor,
-                  }}
-                  onClick={() => {
-                    if (image) {
-                      selectCell(cell.id)
-                      return
-                    }
-
-                    openFilePicker(cell.id)
-                  }}
-                  onKeyDown={(event) => {
-                    if (isActionKey(event.key)) {
-                      event.preventDefault()
-
-                      if (image) {
-                        selectCell(cell.id)
-                        return
-                      }
-
-                      openFilePicker(cell.id)
-                    }
-                  }}
-                >
-                  {image ? (
-                    <>
-                      <img
-                        alt={image.name ?? ''}
-                        className={styles.cellImage}
-                        draggable={false}
-                        src={image.objectUrl}
-                      />
-                      <span className={styles.cellOverlay} />
-                      <div className={styles.cellActions}>
-                        <button
-                          className={styles.cellAction}
-                          type="button"
-                          aria-label={t('editor.canvas.replaceImage')}
-                          title={t('editor.canvas.replaceImage')}
-                          onKeyDown={(event) => {
-                            event.stopPropagation()
-                          }}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            openFilePicker(cell.id)
-                          }}
-                        >
-                          <RefreshIcon />
-                        </button>
-                        <button
-                          className={styles.cellAction}
-                          type="button"
-                          aria-label={t('editor.canvas.removeImage')}
-                          title={t('editor.canvas.removeImage')}
-                          onKeyDown={(event) => {
-                            event.stopPropagation()
-                          }}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            removeImage(cell.id)
-                          }}
-                        >
-                          <TrashIcon />
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <span className={styles.emptyCellIndicator} aria-hidden="true">
-                      <PlusIcon />
-                    </span>
-                  )}
-
-                  {activeCellId === cell.id ? (
-                    <span className={styles.cellLoading} aria-hidden="true" />
-                  ) : null}
-                </div>
+                  cell={cell}
+                  emptyCellColor={emptyCellColor}
+                  image={placedImages[cell.id]}
+                  isLoading={activeCellId === cell.id}
+                  isSelected={selectedCellId === cell.id}
+                  marginColor={marginColor}
+                  onOpenImagePicker={openFilePicker}
+                  onPanImage={panImage}
+                  onRemoveImage={removeImage}
+                  onResetImage={resetImageTransform}
+                  onSelectCell={selectCell}
+                  onZoomImage={zoomImage}
+                />
               )
             })}
           </div>

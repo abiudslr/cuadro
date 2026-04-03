@@ -1,5 +1,14 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import {
+  clampCellImageTransform,
+  createInitialCellImageTransform,
+  panCellImage,
+  zoomCellImage,
+  type CellViewport,
+  type ZoomAnchor,
+} from '../domain/cellImageTransform'
+import type { GridCellLayout } from '../domain/gridLayoutEngine'
 import type { GridAspectRatio, GridOrientation } from '../domain/grid'
 import type { PlacedImage, PlacedImagesByCellId } from '../domain/placedImage'
 
@@ -24,6 +33,15 @@ type EditorState = {
   placeImage: (image: PlacedImage) => void
   removeImage: (cellId: string) => void
   selectCell: (cellId: string | null) => void
+  resetImageTransform: (cellId: string, cell: CellViewport) => void
+  panImage: (cellId: string, cell: CellViewport, deltaX: number, deltaY: number) => void
+  zoomImage: (
+    cellId: string,
+    cell: CellViewport,
+    scaleDelta: number,
+    anchor?: ZoomAnchor
+  ) => void
+  syncPlacedImagesToLayout: (cells: GridCellLayout[]) => void
   openConfigSheet: () => void
   closeConfigSheet: () => void
 }
@@ -34,6 +52,29 @@ const clamp = (value: number, min: number, max: number) =>
 function revokeImageUrl(image?: PlacedImage) {
   if (image) {
     URL.revokeObjectURL(image.objectUrl)
+  }
+}
+
+function updatePlacedImage(
+  state: Pick<EditorState, 'placedImages'>,
+  cellId: string,
+  updater: (image: PlacedImage) => PlacedImage
+) {
+  const image = state.placedImages[cellId]
+
+  if (!image) {
+    return state.placedImages
+  }
+
+  const nextImage = updater(image)
+
+  if (nextImage === image) {
+    return state.placedImages
+  }
+
+  return {
+    ...state.placedImages,
+    [cellId]: nextImage,
   }
 }
 
@@ -65,8 +106,12 @@ export const useEditorStore = create<EditorState>()(
           return {
             placedImages: {
               ...state.placedImages,
-              [image.cellId]: image,
+              [image.cellId]: {
+                ...image,
+                transform: createInitialCellImageTransform(),
+              },
             },
+            selectedCellId: image.cellId,
           }
         }),
       removeImage: (cellId) =>
@@ -83,6 +128,65 @@ export const useEditorStore = create<EditorState>()(
           }
         }),
       selectCell: (cellId) => set({ selectedCellId: cellId }),
+      resetImageTransform: (cellId, cell) =>
+        set((state) => ({
+          placedImages: updatePlacedImage(state, cellId, (image) => ({
+            ...image,
+            transform: clampCellImageTransform(
+              cell,
+              image,
+              createInitialCellImageTransform()
+            ),
+          })),
+        })),
+      panImage: (cellId, cell, deltaX, deltaY) =>
+        set((state) => ({
+          placedImages: updatePlacedImage(state, cellId, (image) => ({
+            ...image,
+            transform: panCellImage(cell, image, image.transform, deltaX, deltaY),
+          })),
+        })),
+      zoomImage: (cellId, cell, scaleDelta, anchor) =>
+        set((state) => ({
+          placedImages: updatePlacedImage(state, cellId, (image) => ({
+            ...image,
+            transform: zoomCellImage(cell, image, image.transform, scaleDelta, anchor),
+          })),
+        })),
+      syncPlacedImagesToLayout: (cells) =>
+        set((state) => {
+          const cellsById = new Map(cells.map((cell) => [cell.id, cell]))
+          let hasChanged = false
+          const nextPlacedImages: PlacedImagesByCellId = { ...state.placedImages }
+
+          for (const [cellId, image] of Object.entries(state.placedImages)) {
+            if (!image) {
+              continue
+            }
+
+            const cell = cellsById.get(cellId)
+
+            if (!cell) {
+              continue
+            }
+
+            const nextTransform = clampCellImageTransform(cell, image, image.transform)
+
+            if (
+              nextTransform.scale !== image.transform.scale ||
+              nextTransform.offsetX !== image.transform.offsetX ||
+              nextTransform.offsetY !== image.transform.offsetY
+            ) {
+              nextPlacedImages[cellId] = {
+                ...image,
+                transform: nextTransform,
+              }
+              hasChanged = true
+            }
+          }
+
+          return hasChanged ? { placedImages: nextPlacedImages } : state
+        }),
       openConfigSheet: () => set({ isConfigSheetOpen: true }),
       closeConfigSheet: () => set({ isConfigSheetOpen: false }),
     }),

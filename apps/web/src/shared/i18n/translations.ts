@@ -23,6 +23,9 @@ export const translations = {
         selectImage: 'Select cell image',
         replaceImage: 'Replace cell image',
         removeImage: 'Remove cell image',
+        zoomIn: 'Zoom in',
+        zoomOut: 'Zoom out',
+        resetTransform: 'Reset image framing',
       },
       mobileDock: {
         orientation: 'Orientation',
@@ -91,6 +94,9 @@ export const translations = {
         selectImage: 'Seleccionar imagen de la celda',
         replaceImage: 'Reemplazar imagen de la celda',
         removeImage: 'Eliminar imagen de la celda',
+        zoomIn: 'Acercar imagen',
+        zoomOut: 'Alejar imagen',
+        resetTransform: 'Restablecer encuadre',
       },
       mobileDock: {
         orientation: 'Orientaci\u00f3n',
