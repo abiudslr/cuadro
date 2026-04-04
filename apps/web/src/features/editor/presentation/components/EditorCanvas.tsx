@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react'
 import { calculateGridLayout } from '@/features/editor/domain/gridLayoutEngine'
 import { useElementSize } from '@/shared/hooks/useElementSize'
 import { useI18n } from '@/shared/i18n/useI18n'
-import { Panel } from '@/shared/ui/panel/Panel'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
 import { useCellImagePicker } from '../hooks/useCellImagePicker'
@@ -64,47 +63,46 @@ export function EditorCanvas() {
   }, [layout.cells, syncPlacedImagesToLayout])
 
   return (
-    <Panel className={styles.canvasPanel} elevated>
+    <div className={styles.canvasPanel}>
       <div
-        className={styles.previewFrame}
+        ref={elementRef}
+        className={styles.previewViewport}
         onClick={(event) => {
           if (event.target === event.currentTarget) {
             selectCell(null)
           }
         }}
       >
-        <div ref={elementRef} className={styles.previewViewport}>
-          <div
-            className={styles.previewCanvas}
-            style={{
-              width: `${layout.canvasWidth}px`,
-              height: `${layout.canvasHeight}px`,
-              background: marginColor,
-            }}
-            onClick={(event) => {
-              if (event.target === event.currentTarget) {
-                selectCell(null)
-              }
-            }}
-          >
-            {layout.cells.map((cell) => {
-              return (
-                <EditorCanvasCell
-                  key={cell.id}
-                  cell={cell}
-                  emptyCellColor={emptyCellColor}
-                  marginColor={marginColor}
-                  pickerActiveCellId={activeCellId}
-                  onOpenImagePicker={openFilePicker}
-                  onSelectCell={selectCell}
-                  onZoomImage={handleZoomImage}
-                />
-              )
-            })}
-          </div>
-          {input}
+        <div
+          className={styles.previewCanvas}
+          style={{
+            width: `${layout.canvasWidth}px`,
+            height: `${layout.canvasHeight}px`,
+            background: marginColor,
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              selectCell(null)
+            }
+          }}
+        >
+          {layout.cells.map((cell) => {
+            return (
+              <EditorCanvasCell
+                key={cell.id}
+                cell={cell}
+                emptyCellColor={emptyCellColor}
+                marginColor={marginColor}
+                pickerActiveCellId={activeCellId}
+                onOpenImagePicker={openFilePicker}
+                onSelectCell={selectCell}
+                onZoomImage={handleZoomImage}
+              />
+            )
+          })}
         </div>
+        {input}
       </div>
-    </Panel>
+    </div>
   )
 }

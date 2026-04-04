@@ -1,21 +1,26 @@
 import { useI18n } from '@/shared/i18n/useI18n'
+import { Button } from '@/shared/ui/button/Button'
 import {
+  DownloadIcon,
   GridIcon,
   HorizontalIcon,
   SlidersIcon,
   VerticalIcon,
 } from '@/shared/ui/icons/Icons'
 import { IconButton } from '@/shared/ui/icon-button/IconButton'
-import { Panel } from '@/shared/ui/panel/Panel'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from '../../application/editorStore'
 import styles from './editor.module.css'
 
 type EditorQuickBarProps = {
   floating?: boolean
+  onOpenExport: () => void
 }
 
-export function EditorQuickBar({ floating = false }: EditorQuickBarProps) {
+export function EditorQuickBar({
+  floating = false,
+  onOpenExport,
+}: EditorQuickBarProps) {
   const { t } = useI18n()
   const { aspectRatio, columns, openConfigSheet, orientation, rows } =
     useEditorStore(
@@ -32,7 +37,14 @@ export function EditorQuickBar({ floating = false }: EditorQuickBarProps) {
     orientation === 'vertical' ? VerticalIcon : HorizontalIcon
 
   return (
-    <Panel className={floating ? styles.mobileDock : ''} elevated>
+    <div className={floating ? styles.mobileDock : styles.quickBar}>
+      <Button className={styles.quickExportButton} variant="primary" onClick={onOpenExport}>
+        <span className={styles.quickExportIcon}>
+          <DownloadIcon />
+        </span>
+        {t('editor.export.action')}
+      </Button>
+
       <div className={styles.quickMetrics}>
         <div
           aria-label={`${t('editor.mobileDock.orientation')}: ${t(
@@ -67,11 +79,12 @@ export function EditorQuickBar({ floating = false }: EditorQuickBarProps) {
 
       <IconButton
         aria-label={t('common.openSettings')}
+        className={styles.quickSettingsButton}
         compact={floating}
         onClick={openConfigSheet}
       >
         <SlidersIcon />
       </IconButton>
-    </Panel>
+    </div>
   )
 }

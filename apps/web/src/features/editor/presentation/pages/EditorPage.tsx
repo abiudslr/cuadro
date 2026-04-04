@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '@/shared/i18n/useI18n'
 import { Button } from '@/shared/ui/button/Button'
+import { DownloadIcon } from '@/shared/ui/icons/Icons'
 import { Sheet } from '@/shared/ui/sheet/Sheet'
 import { useEditorStore } from '../../application/editorStore'
 import { EditorCanvas } from '../components/EditorCanvas'
@@ -19,7 +20,7 @@ export function EditorPage() {
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
-        <EditorHeader onOpenExport={() => setIsExportSheetOpen(true)} />
+        <EditorHeader />
 
         <div className={styles.workspace}>
           <div className={styles.mainColumn}>
@@ -29,12 +30,25 @@ export function EditorPage() {
           </div>
 
           <aside className={styles.desktopPanel}>
+            <Button
+              className={styles.desktopExportButton}
+              variant="primary"
+              onClick={() => setIsExportSheetOpen(true)}
+            >
+              <span className={styles.quickExportIcon}>
+                <DownloadIcon />
+              </span>
+              {t('editor.export.action')}
+            </Button>
             <GridConfigPanel />
           </aside>
         </div>
       </div>
 
-      <EditorQuickBar floating />
+      <EditorQuickBar
+        floating
+        onOpenExport={() => setIsExportSheetOpen(true)}
+      />
 
       <Sheet
         closeLabel={t('common.closeSettings')}
