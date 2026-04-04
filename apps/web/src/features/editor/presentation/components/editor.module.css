@@ -93,7 +93,7 @@
   border-radius: 0;
   background: #1a1d24;
   border: 1px solid var(--cell-outline-color, rgba(255, 255, 255, 0.03));
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   transition:
     border-color 160ms ease,
@@ -203,39 +203,50 @@
 
 .cellActions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: -44px;
+  right: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   z-index: 2;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(11, 13, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 .cellAction {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(11, 13, 18, 0.72);
   color: rgba(255, 255, 255, 0.82);
-  opacity: 0;
   cursor: pointer;
   transition:
-    opacity 160ms ease,
     background-color 160ms ease,
     border-color 160ms ease,
     transform 160ms ease;
 }
 
-.previewCell:hover .cellAction,
-.previewCell:focus-visible .cellAction,
-.previewCellSelected .cellAction,
-.cellAction:focus-visible {
+.previewCellSelected .cellActions,
+.previewCell:focus-visible .cellActions,
+.cellActions:focus-within {
   opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .cellAction:hover,
@@ -254,13 +265,18 @@
 
 .cellTransformControls {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  left: 8px;
+  right: 0;
+  bottom: -44px;
   z-index: 2;
   display: inline-flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 8px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(11, 13, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
@@ -649,6 +665,14 @@
     width: 36px;
     height: 36px;
   }
+
+  .cellActions {
+    top: -48px;
+  }
+
+  .cellTransformControls {
+    bottom: -48px;
+  }
 }
 
 @media (min-width: 960px) {
@@ -677,13 +701,17 @@
 }
 
 @media (hover: none) {
-  .cellAction {
-    opacity: 1;
-  }
-
-  .cellTransformControls {
+  .previewCellSelected .cellActions,
+  .previewCell:focus-visible .cellActions,
+  .cellActions:focus-within {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 959px) {
+  .cellTransformControls {
+    display: none;
   }
 }
