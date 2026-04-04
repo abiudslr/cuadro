@@ -408,6 +408,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(22px) saturate(1.15);
+  overflow: visible;
 }
 
 .quickMetrics {
@@ -415,15 +416,21 @@
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
-  overflow-x: auto;
+  overflow: visible;
   scrollbar-width: none;
+  flex-wrap: wrap;
 }
 
 .quickMetrics::-webkit-scrollbar {
   display: none;
 }
 
-.metricChip {
+.metricMenu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.metricChipButton {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -436,6 +443,84 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.metricChipButton:hover,
+.metricChipButton:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(244, 245, 247, 0.92);
+}
+
+.metricChipButton:focus-visible {
+  outline: none;
+}
+
+.metricChevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.72;
+}
+
+.metricMenuPortal {
+  position: fixed;
+  z-index: 60;
+}
+
+.metricMenuList {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(17, 19, 25, 0.94);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.metricMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: rgba(244, 245, 247, 0.84);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.metricMenuItem:hover,
+.metricMenuItem:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f5f7;
+}
+
+.metricMenuItem:focus-visible {
+  outline: none;
+}
+
+.metricMenuCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
 }
 
 .metricValue {
@@ -519,6 +604,9 @@
 
   .quickMetrics {
     min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 
   .quickExportButton {

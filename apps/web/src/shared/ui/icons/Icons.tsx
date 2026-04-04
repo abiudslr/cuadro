@@ -79,6 +79,14 @@ export function DownloadIcon(props: IconProps) {
   )
 }
 
+export function ChevronUpIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="m6 14 6-6 6 6" />
+    </IconBase>
+  )
+}
+
 export function CheckIcon(props: IconProps) {
   return (
     <IconBase {...props}>
